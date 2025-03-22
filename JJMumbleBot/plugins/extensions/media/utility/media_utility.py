@@ -156,11 +156,19 @@ def download_thumbnail(cur_track):
             "skip_download": True,
             "writethumbnail": True,
             "proxy": gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
+            "extractor_args": { 'youtube': {} }
         }
         if runtime_settings.use_logging:
             ydl_opts["logger"] = gs.log_service
         if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]) > 0:
             ydl_opts["cookiefile"] = gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]
+
+        if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL]) > 0:
+            ydl_opts["extractor_args"]["youtube"]["getpot_bgutil_baseurl"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL] ]
+
+        if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
+            ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.cache.remove()
             ydl.extract_info(cur_track.alt_uri, download=True)
@@ -228,11 +236,18 @@ def get_video_info(video_url):
             "noplaylist": True,
             "skip_download": True,
             "proxy": gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
+            "extractor_args": { 'youtube': {} }
         }
         if runtime_settings.use_logging:
             ydl_opts["logger"] = gs.log_service
         if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]) > 0:
             ydl_opts["cookiefile"] = gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]
+
+        if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL]) > 0:
+            ydl_opts["extractor_args"]["youtube"]["getpot_bgutil_baseurl"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL] ]
+
+        if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
+            ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.cache.remove()
@@ -266,11 +281,19 @@ def get_playlist_info(playlist_url):
         "writethumbnail": False,
         "ignoreerrors": True,
         "proxy": gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
+        "extractor_args": { 'youtube': {} }
     }
     if runtime_settings.use_logging:
         ydl_opts["logger"] = gs.log_service
     if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]) > 0:
         ydl_opts["cookiefile"] = gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]
+
+    if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL]) > 0:
+        ydl_opts["extractor_args"]["youtube"]["getpot_bgutil_baseurl"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL] ]
+
+    if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
+        ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
+
     if settings.youtube_metadata.getboolean(
         C_PLUGIN_SETTINGS, P_YT_ALL_PLAY_MAX, fallback=True
     ):
@@ -283,6 +306,7 @@ def get_playlist_info(playlist_url):
             "writethumbnail": False,
             "ignoreerrors": True,
             "proxy": gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
+            "extractor_args": { 'youtube': {} },
             "playlistend": int(
                 settings.youtube_metadata[C_PLUGIN_SETTINGS][P_YT_MAX_PLAY_LEN]
             ),
@@ -291,6 +315,13 @@ def get_playlist_info(playlist_url):
             ydl_opts["logger"] = gs.log_service
         if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]) > 0:
             ydl_opts["cookiefile"] = gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]
+
+        if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL]) > 0:
+            ydl_opts["extractor_args"]["youtube"]["getpot_bgutil_baseurl"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL] ]
+
+        if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
+            ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         playlist_dict_check = ydl.extract_info(
             playlist_url, download=False, process=False
