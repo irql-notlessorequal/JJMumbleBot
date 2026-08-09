@@ -28,3 +28,9 @@ CMD_INVALID_GET_USER_CONNECTION = [
     "ERROR: Incorrect command formatting!",
     f"Format: {get_command_token()}getuserconnectionsound 'username'"
 ]
+
+# YOUTUBE-DL UPDATE CHECK MESSAGES
+CMD_YTDLP_UPDATE_AVAILABLE = [
+    "Warning: The installed yt-dlp version is out of date!",
+    "Update it with: pip install -U yt-dlp"
+]

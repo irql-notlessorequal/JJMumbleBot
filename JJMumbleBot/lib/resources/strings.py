@@ -46,6 +46,8 @@ P_MEDIA_COOKIE_FILE = "YoutubeDLCookieFile"
 P_MEDIA_PLAYER_BACKEND = "YoutubeDLPlayerBackend"
 P_MEDIA_POT_URL = "YoutubeDLPOTBackend"
 P_MEDIA_REMOTE_COMPONENTS = "YoutubeDLRemoteComponents"
+P_MEDIA_PASSTHROUGH_OPUS = "PassthroughOpusAudio"
+P_MEDIA_YTDLP_UPDATE_CHECK = "YoutubeDLUpdateCheck"
 P_PERM_MEDIA_DIR = "PermanentMediaDirectory"
 P_TEMP_MED_DIR = "TemporaryMediaDirectory"
 # PGUI Settings

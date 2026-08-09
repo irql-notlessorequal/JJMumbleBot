@@ -23,8 +23,11 @@ from JJMumbleBot.lib.utils.dir_utils import (
 from JJMumbleBot.lib.utils.dir_utils import find_file as du_find_file
 from JJMumbleBot.lib.audio.audio_api import TrackType, TrackInfo, AudioLibrary
 from JJMumbleBot.lib.utils.runtime_utils import get_bot_name
+from JJMumbleBot.lib.privileges import Privileges, privileges_check
+from JJMumbleBot.lib.resources.strings import P_MEDIA_YTDLP_UPDATE_CHECK, C_MEDIA_SETTINGS
 from os import path, listdir
 from typing import Union
+import threading
 
 
 class Plugin(PluginBase):
@@ -91,6 +94,19 @@ class Plugin(PluginBase):
             log(
                 INFO,
                 "Registered server_tools plugin callbacks",
+                origin=L_COMMAND,
+                print_mode=PrintMode.VERBOSE_PRINT.value,
+            )
+
+        if gs.cfg.getboolean(
+            C_MEDIA_SETTINGS, P_MEDIA_YTDLP_UPDATE_CHECK, fallback=True
+        ):
+            gs.core_callbacks.append_to_callback(
+                CALLBACK.USER_CREATED, self.clbk_user_connected_ytdlp_check
+            )
+            log(
+                INFO,
+                "Registered server_tools plugin yt-dlp update check callback",
                 origin=L_COMMAND,
                 print_mode=PrintMode.VERBOSE_PRINT.value,
             )
@@ -292,6 +308,40 @@ class Plugin(PluginBase):
         # Play the audio clip
         gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False, quiet=True)
         gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG, override=True)
+
+    def clbk_user_connected_ytdlp_check(self, user):
+        # Return if the user that connected is the bot (self-detection).
+        if len(get_users_in_my_channel()) == 1:
+            return
+
+        # Only warn users with ELEVATED privileges or higher.
+        if privileges_check(user[0]) < Privileges.ELEVATED.value:
+            return
+
+        thread = threading.Thread(target=self._run_ytdlp_update_check, args=(user[0],), daemon=True)
+        thread.start()
+
+    def _run_ytdlp_update_check(self, user_data):
+        update_info = st_utility.check_ytdlp_update()
+        if not update_info:
+            return
+        installed_version, latest_version = update_info
+        gs.gui_service.quick_gui(
+            f"{CMD_YTDLP_UPDATE_AVAILABLE[0]}"
+            f"<br>Installed version: {installed_version}"
+            f"<br>Latest version: {latest_version}"
+            f"<br>{CMD_YTDLP_UPDATE_AVAILABLE[1]}",
+            text_type="header",
+            box_align="left",
+            user=user_data["name"],
+        )
+        log(
+            INFO,
+            f"Warned user [{user_data['name']}] about the outdated yt-dlp version: "
+            f"{installed_version} -> {latest_version}.",
+            origin=L_COMMAND,
+            print_mode=PrintMode.VERBOSE_PRINT.value,
+        )
 
     def cmd_wiki(self, data):
         gs.gui_service.quick_gui(

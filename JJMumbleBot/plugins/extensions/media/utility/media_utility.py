@@ -251,6 +251,8 @@ def get_video_info(video_url):
             "proxy": gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
             "extractor_args": { 'youtube': {} }
         }
+        if gs.cfg.getboolean(C_MEDIA_SETTINGS, P_MEDIA_PASSTHROUGH_OPUS, fallback=False):
+            ydl_opts["format"] = "bestaudio[acodec=opus]/bestaudio/best"
         if runtime_settings.use_logging:
             ydl_opts["logger"] = gs.log_service
         if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]) > 0:

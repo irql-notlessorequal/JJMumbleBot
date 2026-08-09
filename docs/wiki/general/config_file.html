@@ -63,6 +63,8 @@
         <li><code>YoutubeDLProxyURL</code>: Optional Proxy URL - If you want to use a proxy server to use the youtube-dl library, fill this out</li>
         <li><code>YoutubeDLCookieFile</code>: Optionally use a cookies.txt file for the youtube-dl library (useful to deal with rate limits).</li>
         <li><code>YoutubeDLRemoteComponents</code>: Comma/space separated list of yt-dlp remote components to allow fetching when required. Supported values: <code>ejs:npm</code>, <code>ejs:github</code>.</li>
+        <li><code>PassthroughOpusAudio</code>: When enabled, tracks whose source audio is Opus are forwarded to the server without re-encoding (skips the OPUS &raquo; PCM &raquo; OPUS pipeline to lower CPU usage). Bot-side <code>!volume</code> and ducking do not apply to passthrough tracks. Falls back to transcoding when the source is not Opus.</li>
+        <li><code>YoutubeDLUpdateCheck</code>: When enabled, the bot checks the latest yt-dlp version when privileged users join the channel and privately warns them if the installed version is out-of-date (default=True).</li>
         <li><code>TemporaryMediaDirectory</code>: Temporary images directory to store youtube thumbnails and other images content. This directory is cleared when the bot exits.</li>
         <li><code>PermanentMediaDirectory</code>: Permanent media directory to store sound board clips, and other media that won&#39;t be deleted when the bot exits.</li>
         </ul>
@@ -80,6 +82,8 @@
             YoutubeDLProxyURL =
             YoutubeDLCookieFile =
             YoutubeDLRemoteComponents =
+            PassthroughOpusAudio = False
+            YoutubeDLUpdateCheck = True
             TemporaryMediaDirectory = TEMP_MEDIA_DIR_PATH
             PermanentMediaDirectory = PERM_MEDIA_DIR_PATH
         </pre>

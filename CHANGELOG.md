@@ -7,6 +7,7 @@ Unofficial maintenance release authored by IRQL_NOT_LESS_OR_EQUAL.
     - Removed support for the VLC media library. All audio now plays through ffmpeg only.
     - Fixed silent audio output. (both the sound board and media plugins)
     - Added the `MaxAudioBitrate` option in `[Media Settings]` (default `128000`) to keep the encoder within the limit.
+    - Added the `PassthroughOpusAudio` option in `[Media Settings]` to forward Opus sources to the server without the OPUS -> PCM -> OPUS re-encode (lowers CPU usage; bot-side volume/ducking do not apply; falls back to transcoding when the source is not Opus).
     - Added the `ForceTcpOnly` option in `[Connection Settings]` to force audio over the TCP tunnel instead of the UDP transport.
 - <b>Dependencies</b>:
     - Added `audioop-lts` for Python 3.13+ where the `audioop` stdlib module was removed.
@@ -22,6 +23,7 @@ Unofficial maintenance release authored by IRQL_NOT_LESS_OR_EQUAL.
     - Added the `YoutubeDLRemoteComponents` option in `[Media Settings]` to allow fetching yt-dlp remote components (`ejs:npm`, `ejs:github`).
 - <b>Diagnostics</b>:
     - Added the `DebugMumbleClient` option in `[Connection Settings]` to log detailed pymumble protocol messages into the runtime log.
+    - Added the `YoutubeDLUpdateCheck` option in `[Media Settings]` (default `True`) that checks the latest yt-dlp version when a privileged user joins the channel and privately warns them if the installed version is out-of-date.
 - <b>Other</b>:
     - Bumped the bundled plugin metadata versions to 5.3.1a.
 - <b>Media Plugin</b>:
