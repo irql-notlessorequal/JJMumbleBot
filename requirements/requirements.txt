@@ -7,3 +7,5 @@ Pillow
 yt-dlp
 # pymumble==1.6.1
 pymumble @ git+https://github.com/DuckBoss/pymumble@main
+# audioop-lts is a drop-in replacement for the audioop stdlib module removed in Python 3.13
+audioop-lts; python_version >= '3.13'

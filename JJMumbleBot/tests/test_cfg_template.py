@@ -48,12 +48,8 @@ class TestConfigTemplate:
 
     # Media Settings Config Tests
     def test_ffmpeg_location(self):
-        vlc_location = self.cfg[C_MEDIA_SETTINGS][P_MEDIA_FFMPEG_PATH]
-        assert vlc_location == "ffmpeg"
-
-    def test_vlc_location(self):
-        vlc_location = self.cfg[C_MEDIA_SETTINGS][P_MEDIA_VLC_PATH]
-        assert vlc_location == "vlc"
+        ffmpeg_location = self.cfg[C_MEDIA_SETTINGS][P_MEDIA_FFMPEG_PATH]
+        assert ffmpeg_location == "ffmpeg"
 
     def test_stereo_audio(self):
         stereo_audio = self.cfg.getboolean(C_MEDIA_SETTINGS, P_MEDIA_USE_STEREO)

@@ -22,8 +22,11 @@ class BotServiceHelper:
         user_cert: str = global_settings.cfg[C_CONNECTION_SETTINGS][P_USER_CERT]
         use_stereo: bool = global_settings.cfg.getboolean(C_MEDIA_SETTINGS, P_MEDIA_USE_STEREO, fallback=True)
         use_reconnect: bool = global_settings.cfg.getboolean(C_CONNECTION_SETTINGS, P_SERVER_RECONNECT, fallback=False)
+        use_debug: bool = global_settings.cfg.getboolean(C_CONNECTION_SETTINGS, P_MUMBLE_DEBUG, fallback=False)
+        force_tcp_only: bool = global_settings.cfg.getboolean(C_CONNECTION_SETTINGS, P_FORCE_TCP_ONLY, fallback=True)
         return MumbleData(ip=server_ip, port=server_port, uid=user_id, pwd=server_pass, cert=user_cert,
-                          stereo=use_stereo, reconnect=use_reconnect)
+                          stereo=use_stereo, reconnect=use_reconnect, debug=use_debug,
+                          force_tcp_only=force_tcp_only)
 
     @staticmethod
     def initialize_settings():
@@ -39,6 +42,7 @@ class BotServiceHelper:
         runtime_settings.max_logs = int(global_settings.cfg[C_LOGGING][P_LOG_MAX])
         runtime_settings.max_log_size = int(global_settings.cfg[C_LOGGING][P_LOG_SIZE_MAX])
         runtime_settings.log_trace = global_settings.cfg.getboolean(C_LOGGING, P_LOG_TRACE, fallback=False)
+        runtime_settings.debug_mumble = global_settings.cfg.getboolean(C_CONNECTION_SETTINGS, P_MUMBLE_DEBUG, fallback=False)
         runtime_settings.cmd_queue_lim = int(global_settings.cfg[C_MAIN_SETTINGS][P_CMD_QUEUE_LIM])
         runtime_settings.cmd_hist_lim = int(global_settings.cfg[C_MAIN_SETTINGS][P_CMD_HIST_LIM])
         runtime_settings.can_duck = global_settings.cfg.getboolean(C_MEDIA_SETTINGS, P_MEDIA_DUCK_AUDIO, fallback=False)

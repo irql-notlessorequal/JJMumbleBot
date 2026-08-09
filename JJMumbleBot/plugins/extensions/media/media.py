@@ -149,7 +149,7 @@ class Plugin(PluginBase):
                     text_type="header",
                     box_align="left",
                 )
-                gs.aud_interface.play(audio_lib=AudioLibrary.VLC)
+                gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
             else:
                 gs.aud_interface.clear_dni()
                 gs.gui_service.quick_gui(
@@ -254,7 +254,7 @@ class Plugin(PluginBase):
             quiet=False,
         )
         gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
-        gs.aud_interface.play(audio_lib=AudioLibrary.VLC)
+        gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
 
     def cmd_link(self, data):
         if gs.aud_interface.check_dni(self.plugin_name):
@@ -331,7 +331,7 @@ class Plugin(PluginBase):
                 quiet=False,
             )
             gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
-            gs.aud_interface.play(audio_lib=AudioLibrary.VLC)
+            gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
 
     def cmd_linkfront(self, data):
         if gs.aud_interface.check_dni(self.plugin_name):
@@ -405,7 +405,7 @@ class Plugin(PluginBase):
                 quiet=False,
             )
             gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=True)
-            gs.aud_interface.play(audio_lib=AudioLibrary.VLC)
+            gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
 
     def cmd_ytsearch(self, data):
         all_data = data.message.strip().split(" ", 1)
@@ -480,7 +480,7 @@ class Plugin(PluginBase):
                 )
                 gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
                 md_settings.search_results = None
-                gs.aud_interface.play(audio_lib=AudioLibrary.VLC)
+                gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
             elif len(all_data) == 2:
                 if (
                     int(self.metadata[C_PLUGIN_SETTINGS][P_YT_MAX_SEARCH_LEN])
@@ -527,7 +527,7 @@ class Plugin(PluginBase):
                 )
                 gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
                 md_settings.search_results = None
-                gs.aud_interface.play(audio_lib=AudioLibrary.VLC)
+                gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
             else:
                 md_settings.can_play = False
                 md_settings.search_results = None

@@ -199,7 +199,7 @@ class Plugin(PluginBase):
                     to_front=False,
                     quiet=True
                 )
-                gs.aud_interface.play(audio_lib=AudioLibrary.VLC, override=True)
+                gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG, override=True)
         elif len(all_data) == 3:
             if len(all_data[1]) > int(self.metadata[C_PLUGIN_SETTINGS][P_TTS_MSG_CHR_LIM]):
                 gs.gui_service.quick_gui(
@@ -227,7 +227,7 @@ class Plugin(PluginBase):
                     to_front=False,
                     quiet=True
                 )
-                gs.aud_interface.play(audio_lib=AudioLibrary.VLC, override=True)
+                gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG, override=True)
         else:
             gs.gui_service.quick_gui(
                 f"Incorrect Format:<br>{get_command_token()}tts 'voice_name' 'message'<br>OR<br>{get_command_token()}tts 'message'",

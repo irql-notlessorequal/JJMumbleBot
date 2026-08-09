@@ -120,7 +120,7 @@ class BotService:
             origin=L_STARTUP,
             print_mode=PrintMode.VERBOSE_PRINT.value,
         )
-        # Initialize VLC interface.
+        # Initialize the audio interface.
         global_settings.aud_interface = AudioLibraryInterface()
         # Initialize plugins.
         if global_settings.safe_mode:
@@ -163,6 +163,8 @@ class BotService:
             password=md.password,
             certfile=md.certificate,
             stereo=md.stereo,
+            debug=md.debug,
+            force_tcp_only=md.force_tcp_only,
         )
         # Callback - message_received
         global_settings.mumble_inst.callbacks.set_callback(
@@ -229,6 +231,20 @@ class BotService:
         try:
             global_settings.mumble_inst.start()
             global_settings.mumble_inst.is_ready()
+
+            # The server's advertised max_bandwidth may be far higher than the
+            # Mumble voice packet size limit (~1020 bytes) allows. Cap the
+            # encoder bitrate so packets stay small enough for the server to relay.
+            max_bitrate = global_settings.cfg.getint(
+                C_MEDIA_SETTINGS, P_MAX_AUDIO_BITRATE, fallback=128000
+            )
+            global_settings.mumble_inst.set_bandwidth(max_bitrate)
+            log(
+                INFO,
+                f"Set outgoing audio bandwidth cap to {max_bitrate} bps.",
+                origin=L_STARTUP,
+                print_mode=PrintMode.VERBOSE_PRINT.value,
+            )
 
             if global_settings.cfg.getboolean(
                 C_CONNECTION_SETTINGS, P_SELF_REGISTER, fallback=False

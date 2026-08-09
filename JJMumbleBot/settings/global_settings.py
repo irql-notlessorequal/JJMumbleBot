@@ -20,6 +20,7 @@ mumble_db_string = None
 safe_mode: bool = False
 quiet_mode: bool = False
 verbose_mode: bool = False
+skip_permissions: bool = False
 # Audio Thread Instance
 audio_inst = None
 audio_thread = None

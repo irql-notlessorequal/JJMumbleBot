@@ -7,6 +7,27 @@ import logging
 import traceback
 
 
+class PyMumbleLogBridge(logging.Handler):
+    """Forward Python-logging records (e.g. the 'PyMumble' client library logger)
+    into the bot's runtime log so that low-level client events are visible.
+
+    Debug/info records are raised to INFO so they pass the runtime log's
+    INFO-level file handler.
+    """
+
+    def emit(self, record):
+        log_service = getattr(global_settings, "log_service", None)
+        if log_service is None:
+            return
+        msg = self.format(record)
+        if record.levelno >= logging.ERROR:
+            log_service.error(msg)
+        elif record.levelno >= logging.WARNING:
+            log_service.warning(msg)
+        else:
+            log_service.info(msg)
+
+
 def initialize_logging():
     if not runtime_settings.use_logging:
         return
@@ -33,6 +54,15 @@ def initialize_logging():
     log_formatter = logging.Formatter('[%(asctime)s]-[%(levelname)s]-%(message)s')
     handler.setFormatter(log_formatter)
     global_settings.log_service.addHandler(handler)
+
+    # Bridge the Mumble client library loggers into the runtime log.
+    if runtime_settings.debug_mumble:
+        bridge = PyMumbleLogBridge()
+        bridge.setLevel(logging.DEBUG)
+        for logger_name in ("PyMumble", "PyMumbleUDP", "PyMumbleUDPServerInfo"):
+            pymumble_logger = logging.getLogger(logger_name)
+            pymumble_logger.setLevel(logging.DEBUG)
+            pymumble_logger.addHandler(bridge)
 
 
 def log(level: str, message: Union[List[str], str], origin: str = None, error_type: str = None, print_mode: int = -1):

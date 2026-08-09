@@ -119,7 +119,7 @@ def mute(username: str = None):
     return True
 
 
-def unmute(username: str = None):
+def unmute(username: str = None, force: bool = False):
     if username:
         user = get_user(username)
         if user:
@@ -133,7 +133,7 @@ def unmute(username: str = None):
                 user.unmute()
                 return True
         return False
-    if not runtime_settings.muted:
+    if not runtime_settings.muted and not force:
         return False
     global_settings.mumble_inst.users.myself.unmute()
     runtime_settings.muted = False

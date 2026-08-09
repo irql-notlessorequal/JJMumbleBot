@@ -1,7 +1,7 @@
 import sys
 from subprocess import call
 
-import pkg_resources
+from importlib.metadata import distributions, version as package_version
 from requests import get
 
 from JJMumbleBot.lib.resources.strings import L_DEPENDENCIES
@@ -36,9 +36,13 @@ def update_package(package_name, pip_cmd):
     return False
 
 
+def _normalize_package_name(name):
+    return name.lower().replace("-", "_")
+
+
 def update_available(package_name):
-    packages = [dist.project_name for dist in pkg_resources.working_set]
-    if package_name not in packages:
+    packages = {_normalize_package_name(dist.metadata["Name"]) for dist in distributions()}
+    if _normalize_package_name(package_name) not in packages:
         log(
             ERROR,
             f"The package: [{package_name}] is not a dependency of this software.",
@@ -49,16 +53,17 @@ def update_available(package_name):
         return None
     vers = check_pypi_version(package_name)
     if vers is not None:
+        current_version = package_version(package_name)
         log(
             INFO,
             [
                 f"{package_name} version available: {vers}",
-                f"{package_name} version current: {pkg_resources.get_distribution(package_name).version}"
+                f"{package_name} version current: {current_version}"
             ],
             origin=L_DEPENDENCIES,
             print_mode=PrintMode.VERBOSE_PRINT.value
         )
-        if vers != pkg_resources.get_distribution(package_name).version:
+        if vers != current_version:
             log(
                 INFO,
                 f"There is a newer version of: [{package_name}({vers})] available.",
@@ -71,7 +76,7 @@ def update_available(package_name):
 
 def check_and_update(package_name, pip_cmd):
     vers = check_pypi_version(package_name)
-    if vers != pkg_resources.get_distribution(package_name).version:
+    if vers != package_version(package_name):
         log(
             INFO,
             f"There is a newer version of: [{package_name}({vers})] available. Updating...",

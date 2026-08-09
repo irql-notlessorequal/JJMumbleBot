@@ -209,12 +209,6 @@ if __name__ == "__main__":
         help="Enter the path to ffmpeg to be used by media plugins.",
     )
     optional_args.add_argument(
-        "-vlcpath",
-        dest="vlc_path",
-        default=None,
-        help="Enter the path to vlc to be used by media plugins.",
-    )
-    optional_args.add_argument(
         "-stereoaudio",
         dest="stereo_audio",
         action="store_const",
@@ -528,6 +522,13 @@ if __name__ == "__main__":
         help="Enables quiet mode which suppresses output statements from the bot service. This is "
         "useful for running the bot in a headless environment.",
     )
+    optional_args.add_argument(
+        "-nopermissions",
+        dest="no_permissions",
+        action="store_true",
+        default=False,
+        help="Skips all user privilege checks, allowing any user to use any command.",
+    )
 
     args = parser.parse_args()
 
@@ -538,6 +539,8 @@ if __name__ == "__main__":
         global_settings.safe_mode = True
     elif args.verbose_mode:
         global_settings.verbose_mode = True
+    if args.no_permissions:
+        global_settings.skip_permissions = True
     if global_settings.verbose_mode and global_settings.quiet_mode:
         raise SysArgError(
             "It looks like both verbose mode and quiet mode are enabled.\n"
@@ -716,8 +719,6 @@ if __name__ == "__main__":
     # Overwrite media settings if the launch parameter is provided.
     if args.ffmpeg_path:
         global_settings.cfg[C_MEDIA_SETTINGS][P_MEDIA_FFMPEG_PATH] = args.ffmpeg_path
-    if args.vlc_path:
-        global_settings.cfg[C_MEDIA_SETTINGS][P_MEDIA_VLC_PATH] = args.vlc_path
     if args.stereo_audio:
         global_settings.cfg[C_MEDIA_SETTINGS][P_MEDIA_USE_STEREO] = args.stereo_audio
     if args.quiet_audio_lib:

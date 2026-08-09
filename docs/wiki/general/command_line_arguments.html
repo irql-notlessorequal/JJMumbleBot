@@ -35,6 +35,7 @@
                 <li><code>-safe</code> - Enables safe mode for the bot service which initializes the bot with safe-mode only plugins.</li>
                 <li><code>-verbose</code> - Enables verbose mode which displays extensive output statements from the bot service.<br>This is useful for debugging purposes.</li>
                 <li><code>-quiet</code> - Enables quiet mode which suppresses output statements from the bot service.<br>This is useful for running the bot in a headless environment.</li>
+                <li><code>-nopermissions</code> - Skips all user privilege checks, allowing any user to use any command.</li>
                 <b>Connection Launch Parameters:</b><br>
                 <li><code>-username</code> - Enter the username of the bot using this parameter.<br>If the bot is registered with a certificate, the username must<br>match the username registered in the certificate.</li>
                 <li><code>-cert</code> - Enter the bot client certificate path using this parameter if you are not generating a certificate at runtime.</li>
@@ -67,7 +68,6 @@
                 <li><code>-cmdhistlimit</code> - Enter the maximum number of commands to store in the command history.</li>
                 <b>Media Settings Launch Parameters:</b><br>
                 <li><code>-ffmpegpath</code> - Enter the path to ffmpeg to be used by media plugins.</li>
-                <li><code>-vlcpath</code> - Enter the path to vlc to be used by media plugins.</li>
                 <li><code>-stereoaudio</code> - Enable stereo audio playback for the bot audio system.</li>
                 <li><code>-quietaudiolib</code> - Suppress audio library console messages with this launch parameter.</li>
                 <li><code>-audiolibdebug</code> - Enables debugging messages for the audio libraries to be displayed.</li>

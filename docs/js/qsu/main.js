@@ -23,8 +23,6 @@ function get_media_settings() {
 [Media Settings]
 ; FFmpeg location
 FfmpegPath = ${document.getElementById('media-ffmpeg-path').value}
-; VLC location
-VlcPath = ${document.getElementById('media-vlc-path').value}
 ; Use Stereo Audio
 UseStereoAudio = ${document.getElementById('media-stereo-enable').value}
 ; Enable/Disable Audio Library Console Messages

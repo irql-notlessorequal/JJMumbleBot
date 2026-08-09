@@ -39,23 +39,24 @@ def execute_command(com):
         return
 
     # Check user privileges before attempting to execute any commands.
-    if privileges_check(global_settings.mumble_inst.users[com.text.actor]) > Privileges.BLACKLIST.value:
-        if not plugin_privilege_checker(com.text, com.command, plugin.plugin_name):
+    if not global_settings.skip_permissions:
+        if privileges_check(global_settings.mumble_inst.users[com.text.actor]) > Privileges.BLACKLIST.value:
+            if not plugin_privilege_checker(com.text, com.command, plugin.plugin_name):
+                global_settings.gui_service.quick_gui(
+                    f"{com.text.actor['name']} does not have the user privileges to use <code>{get_command_token()}{com.command}</code>.",
+                    text_type='header', box_align='left')
+                log(INFO,
+                    f"{com.text.actor['name']} tried to use the {get_command_token()}{com.command} command, but lacked the user privileges to do so.",
+                    origin=L_COMMAND, print_mode=PrintMode.VERBOSE_PRINT.value)
+                return
+        else:
             global_settings.gui_service.quick_gui(
-                f"{com.text.actor['name']} does not have the user privileges to use <code>{get_command_token()}{com.command}</code>.",
-                text_type='header', box_align='left')
+                f"Blacklisted user [{com.text.actor['name']}] does not have the user "
+                f"privileges to use this command: [{com.command}]", text_type='header', box_align='left')
             log(INFO,
-                f"{com.text.actor['name']} tried to use the {get_command_token()}{com.command} command, but lacked the user privileges to do so.",
+                f"{com.text.actor['name']} tried to use the {get_command_token()}{com.command} command, but is currently blacklisted.",
                 origin=L_COMMAND, print_mode=PrintMode.VERBOSE_PRINT.value)
             return
-    else:
-        global_settings.gui_service.quick_gui(
-            f"Blacklisted user [{com.text.actor['name']}] does not have the user "
-            f"privileges to use this command: [{com.command}]", text_type='header', box_align='left')
-        log(INFO,
-            f"{com.text.actor['name']} tried to use the {get_command_token()}{com.command} command, but is currently blacklisted.",
-            origin=L_COMMAND, print_mode=PrintMode.VERBOSE_PRINT.value)
-        return
 
     # Execute commands in either a blocking thread, or in a separate thread.
     if use_single_thread:

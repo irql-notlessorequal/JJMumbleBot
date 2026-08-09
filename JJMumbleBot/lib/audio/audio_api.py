@@ -33,7 +33,6 @@ class TrackType(Enum):
 
 class AudioLibrary(Enum):
     FFMPEG = "ffmpeg"
-    VLC = "vlc"
 
 
 class TrackInfo:
