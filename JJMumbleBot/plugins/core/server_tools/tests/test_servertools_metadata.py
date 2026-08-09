@@ -16,7 +16,7 @@ class TestServerTools:
         self.cfg.read(f"{get_core_plugin_dir()}/server_tools/metadata.ini")
 
     def test_plugin_version(self):
-        assert self.cfg[C_PLUGIN_INFO][P_PLUGIN_VERS] == "5.2.0"
+        assert self.cfg[C_PLUGIN_INFO][P_PLUGIN_VERS] == "5.3.1a"
 
     def test_commands_list_size(self):
         commands_list = list(loads(self.cfg[C_PLUGIN_INFO][P_PLUGIN_CMDS]))
@@ -33,7 +33,7 @@ class TestServerTools:
         assert self.cfg[C_PLUGIN_SET][P_WELCOME_MSG] == "Hello! Welcome to the server."
 
     def test_audio_clip_on_user_join(self):
-        assert self.cfg.getboolean(C_PLUGIN_SET, P_PLAY_AUDIO_CLIP_ON_USER_JOIN, fallback=False) is True
+        assert self.cfg.getboolean(C_PLUGIN_SET, P_PLAY_AUDIO_CLIP_ON_USER_JOIN, fallback=False) is False
 
     def test_audio_clip_if_users_in_channel(self):
         assert self.cfg.getboolean(C_PLUGIN_SET, P_PLAY_CLIP_ONLY_IF_USERS_IN_CHANNEL, fallback=False) is True

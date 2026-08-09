@@ -127,6 +127,7 @@ class Plugin(PluginBase):
                             time_range=time_range,
                             ffmpeg_path=gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_FFMPEG_PATH],
                             proxy=gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
+                            remote_components=gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_REMOTE_COMPONENTS],
                         )
                         gs.gui_service.quick_gui(
                             f"Downloaded sound clip as : {all_data[2].strip()}[{time_range[0]}-{time_range[1]}]",
@@ -146,6 +147,7 @@ class Plugin(PluginBase):
                             all_data[2].strip(),
                             ffmpeg_path=gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_FFMPEG_PATH],
                             proxy=gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
+                            remote_components=gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_REMOTE_COMPONENTS],
                         )
                         gs.gui_service.quick_gui(
                             f"Downloaded sound clip as : {all_data[2].strip()}",

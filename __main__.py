@@ -2,7 +2,7 @@ import JJMumbleBot.core.bot_service as service
 import JJMumbleBot.settings.global_settings as global_settings
 from JJMumbleBot.lib.errors import SysArgError
 from JJMumbleBot.lib.utils import dir_utils
-from JJMumbleBot.lib.utils.runtime_utils import validate_cfg
+from JJMumbleBot.lib.utils.runtime_utils import validate_cfg, resolve_bot_name
 from JJMumbleBot.lib.resources.strings import *
 import argparse
 import configparser
@@ -80,7 +80,9 @@ if __name__ == "__main__":
         default=None,
         help="Enter the username of the bot using this parameter.\n"
         "If the bot is registered with a certificate, the username must "
-        "match the username registered in the certificate.",
+        "match the username registered in the certificate.\n"
+        "Alternatively, enter the path to a file containing bot usernames "
+        "(one per line) and a random one will be selected.",
     )
     optional_args.add_argument(
         "-defaultchannel",
@@ -603,7 +605,9 @@ if __name__ == "__main__":
 
     # Overwrite connection settings if the launch parameter is provided.
     if args.server_username:
-        global_settings.cfg[C_CONNECTION_SETTINGS][P_USER_ID] = args.server_username
+        bot_username = resolve_bot_name(args.server_username)
+        global_settings.cfg[C_CONNECTION_SETTINGS][P_USER_ID] = bot_username
+        print(f"Bot username: {bot_username}")
 
     if args.generate_cert:
         from subprocess import call

@@ -1,3 +1,34 @@
+## JJMumbleBot v5.3.1a - Patch release
+
+Unofficial maintenance release authored by IRQL_NOT_LESS_OR_EQUAL.
+
+### New Features, Changes and Fixes
+- <b>Audio</b>:
+    - Removed support for the VLC media library. All audio now plays through ffmpeg only.
+    - Fixed silent audio output. (both the sound board and media plugins)
+    - Added the `MaxAudioBitrate` option in `[Media Settings]` (default `128000`) to keep the encoder within the limit.
+    - Added the `ForceTcpOnly` option in `[Connection Settings]` to force audio over the TCP tunnel instead of the UDP transport.
+- <b>Dependencies</b>:
+    - Added `audioop-lts` for Python 3.13+ where the `audioop` stdlib module was removed.
+    - Switched to the `DuckBoss/pymumble` fork.
+- <b>Command Line</b>:
+    - Added the `-nopermissions` flag to skip all user privilege checks.
+    - Removed the `-vlcpath` argument.
+    - The `-username` option can now point to a file containing bot usernames (one per line); a random name is selected at startup.
+- <b>Media Plugin</b>:
+    - The `!link` and `!linkfront` commands now accept any URL supported by yt-dlp, not just YouTube and SoundCloud.
+    - Playlist links are now detected generically via yt-dlp and rejected with a pointer to `!ytplaylist` (previously only YouTube/SoundCloud playlists were caught).
+    - Fixed playback of tracks whose CDN requires browser HTTP headers (e.g. Odysee): the selected format's headers are now forwarded to ffmpeg.
+    - Added the `YoutubeDLRemoteComponents` option in `[Media Settings]` to allow fetching yt-dlp remote components (`ejs:npm`, `ejs:github`).
+- <b>Diagnostics</b>:
+    - Added the `DebugMumbleClient` option in `[Connection Settings]` to log detailed pymumble protocol messages into the runtime log.
+- <b>Other</b>:
+    - Bumped the bundled plugin metadata versions to 5.3.1a.
+- <b>Media Plugin</b>:
+    - The `!link` and `!linkfront` commands now accept any URL supported by yt-dlp, not just YouTube and SoundCloud.
+    - Playlist links are now detected generically via yt-dlp and rejected with a pointer to `!ytplaylist` (previously only YouTube/SoundCloud playlists were caught).
+    - Fixed playback of tracks whose CDN requires browser HTTP headers (e.g. Odysee): the selected format's headers are now forwarded to ffmpeg.
+
 ## JJMumbleBot v5.3.0 - New features and fixes
 
 <b>This project is no longer under active development, and the bot is being reworked in the following rework project: [Mumimo](https://github.com/DuckBoss/Mumimo)</b>

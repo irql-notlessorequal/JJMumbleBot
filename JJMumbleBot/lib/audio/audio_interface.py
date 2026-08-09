@@ -17,7 +17,15 @@ class AudioLibrary(Enum):
     FFMPEG = "ffmpeg"
 
 
-def create_audio_instance(uri: str, audio_lib, skipto: int = 0):
+def format_http_headers(headers):
+    if not headers:
+        return ""
+    return "".join(f"{key}: {value}\r\n" for key, value in headers.items())
+
+
+def create_audio_instance(
+    uri: str, audio_lib, skipto: int = 0, http_headers: dict = None
+):
     if audio_lib.value == AudioLibrary.FFMPEG.value:
         audio_lib_path = global_settings.cfg[C_MEDIA_SETTINGS][P_MEDIA_FFMPEG_PATH]
     else:
@@ -37,6 +45,7 @@ def create_audio_instance(uri: str, audio_lib, skipto: int = 0):
             global_settings.cfg.getboolean(
                 C_MEDIA_SETTINGS, P_MEDIA_USE_STEREO, fallback=True
             ),
+            http_headers,
         ),
         daemon=True,
     )
@@ -60,6 +69,7 @@ def create_audio_thread(
     skipto: int = 0,
     quiet: bool = True,
     stereo: bool = True,
+    http_headers: dict = None,
 ):
     if uri == "":
         return
@@ -96,6 +106,9 @@ def create_audio_thread(
                     "2",
                 ]
             )
+        header_string = format_http_headers(http_headers)
+        if header_string:
+            params.extend(["-headers", header_string])
         params.extend(
             [
                 "-nostdin",
@@ -139,29 +152,8 @@ def create_audio_thread(
     stderr_thread = Thread(target=read_stderr, daemon=True)
     stderr_thread.start()
 
-    # Diagnostics: log the bot's channel and mute state at playback start, then
-    # force-unmute so the server is guaranteed to relay audio even if the local
-    # mute flag has drifted out of sync.
-    try:
-        myself = global_settings.mumble_inst.users.myself
-        channel = global_settings.mumble_inst.channels[myself.get("channel_id", 0)]
-        log(
-            INFO,
-            f"Playback start: channel=[{channel.get('name', '?')}({myself.get('channel_id', '?')})], "
-            f"self_mute={myself.get('self_mute', 'n/a')}, "
-            f"self_deaf={myself.get('self_deaf', 'n/a')}, "
-            f"mute={myself.get('mute', 'n/a')}, deaf={myself.get('deaf', 'n/a')}, "
-            f"force_tcp_only={global_settings.mumble_inst.force_tcp_only}",
-            origin=L_GENERAL,
-            print_mode=PrintMode.REG_PRINT.value,
-        )
-    except Exception as e:
-        log(
-            WARNING,
-            f"Failed to gather playback diagnostics: {e}",
-            origin=L_GENERAL,
-            print_mode=PrintMode.VERBOSE_PRINT.value,
-        )
+    # The bot self-mutes on connect, so force-unmute at playback start to ensure
+    # the server actually relays the outgoing audio stream.
     unmute_sent = rutils.unmute(force=True)
     log(
         INFO,
@@ -291,6 +283,7 @@ def create_audio_thread(
             skipto=0,
             quiet=quiet,
             stereo=stereo,
+            http_headers=global_settings.aud_interface.status.get_track().http_headers,
         )
     else:
         global_settings.aud_interface.reset()

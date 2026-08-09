@@ -7,6 +7,7 @@ import os
 import yt_dlp
 import subprocess
 from fuzzywuzzy import process
+from JJMumbleBot.lib.utils.runtime_utils import parse_remote_components
 
 
 def prepare_sb_list(include_file_extensions=False):
@@ -53,7 +54,7 @@ def find_files(query: str):
     return match_list
 
 
-def download_clip(url, name, time_range=None, ffmpeg_path="ffmpeg", proxy=""):
+def download_clip(url, name, time_range=None, ffmpeg_path="ffmpeg", proxy="", remote_components=""):
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": f"{dir_utils.get_perm_med_dir()}/{settings.plugin_name}/{name}.webm",
@@ -61,6 +62,8 @@ def download_clip(url, name, time_range=None, ffmpeg_path="ffmpeg", proxy=""):
         "youtube_skip_dash_manifest": True,
         "proxy": proxy,
     }
+    if remote_components := parse_remote_components(remote_components):
+        ydl_opts["remote_components"] = remote_components
     try:
         info_dict = {}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

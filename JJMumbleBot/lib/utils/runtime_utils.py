@@ -10,6 +10,7 @@ from os import path
 from json import loads, dumps
 from datetime import datetime
 import configparser
+import random
 
 
 def parse_message(text):
@@ -292,6 +293,33 @@ def get_command_token():
 
 def get_bot_name():
     return global_settings.cfg[C_CONNECTION_SETTINGS][P_USER_ID]
+
+
+def parse_remote_components(raw: str) -> list:
+    if not raw:
+        return []
+    components = []
+    for item in raw.replace(",", " ").split():
+        item = item.strip("[]'\"").strip()
+        if item:
+            components.append(item)
+    return components
+
+
+def resolve_bot_name(name_or_path: str):
+    if not path.isfile(name_or_path):
+        return name_or_path
+    with open(name_or_path, encoding="utf-8") as name_file:
+        names = [
+            line.strip()
+            for line in name_file
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+    if not names:
+        raise ValueError(
+            f"The bot name file '{name_or_path}' does not contain any valid names."
+        )
+    return random.choice(names)
 
 
 def get_bot_internal_name():

@@ -47,6 +47,7 @@ class TrackInfo:
         alt_uri="",
         image_uri="",
         quiet=False,
+        http_headers=None,
     ):
         self.uri = uri
         self.name = name
@@ -57,6 +58,7 @@ class TrackInfo:
         self.image_uri = image_uri
         self.track_id = track_id
         self.quiet = quiet
+        self.http_headers = http_headers
 
     def __str__(self):
         return str(self.to_dict())
@@ -72,6 +74,7 @@ class TrackInfo:
             "alt_uri": self.alt_uri,
             "image_uri": self.image_uri,
             "quiet": self.quiet,
+            "http_headers": self.http_headers,
         }
 
 
@@ -382,6 +385,7 @@ class AudioLibraryInterface:
             self.status.get_track().uri,
             skipto=self.status["progress_time"],
             audio_lib=audio_lib,
+            http_headers=self.status.get_track().http_headers,
         )
         self.status.set_status(TrackStatus.PLAYING)
         if not track_info.quiet:
@@ -492,6 +496,7 @@ class AudioLibraryInterface:
                 self.status.get_track().uri,
                 skipto=seconds,
                 audio_lib=self.status["audio_library"],
+                http_headers=self.status.get_track().http_headers,
             )
 
             self.status["start_time"] = int(time())

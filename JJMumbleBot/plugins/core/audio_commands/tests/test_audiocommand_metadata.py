@@ -12,11 +12,11 @@ class TestAudioCommands:
         self.cfg.read(f"{get_core_plugin_dir()}/audio_commands/metadata.ini")
 
     def test_plugin_version(self):
-        assert self.cfg[C_PLUGIN_INFO][P_PLUGIN_VERS] == "5.2.0"
+        assert self.cfg[C_PLUGIN_INFO][P_PLUGIN_VERS] == "5.3.1a"
 
     def test_commands_list_size(self):
         commands_list = list(loads(self.cfg[C_PLUGIN_INFO][P_PLUGIN_CMDS]))
-        assert len(commands_list) == 18
+        assert len(commands_list) == 19
 
     def test_match_commands_to_methods(self):
         method_list = [item for item in dir(Plugin) if callable(getattr(Plugin, item)) and item.startswith("cmd_")]

@@ -16,6 +16,11 @@ CMD_INVALID_LINK_FRONT = [
     "ERROR: Incorrect command formatting!",
     f"Format: {get_command_token()}linkfront 'url'",
 ]
+CMD_PLAYLIST_LINK = [
+    "ERROR: The given link was identified as a playlist link!",
+    f"Playlists are not supported by the {get_command_token()}link command.<br>"
+    f"Use {get_command_token()}ytplaylist for YouTube playlists.",
+]
 CMD_INVALID_YTSEARCH = [
     "ERROR: Incorrect command formatting!",
     f"Format: {get_command_token()}ytsearch 'url'",

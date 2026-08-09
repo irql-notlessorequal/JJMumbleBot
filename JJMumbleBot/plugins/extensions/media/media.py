@@ -140,6 +140,7 @@ class Plugin(PluginBase):
                         alt_uri=song_data["std_url"],
                         image_uri=f"{dir_utils.get_temp_med_dir()}/{self.plugin_name}/{song_data['main_id']}",
                         quiet=False,
+                        http_headers=song_data.get("http_headers"),
                     )
                     gs.aud_interface.enqueue_track(
                         track_obj=track_obj, to_front=False, quiet=True
@@ -256,6 +257,46 @@ class Plugin(PluginBase):
         gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
         gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
 
+    def _enqueue_link_song(self, data, stripped_url, to_front):
+        sender = gs.mumble_inst.users[data.actor]["name"]
+        song_data = md_utility.get_video_info(stripped_url)
+        if song_data is None:
+            gs.gui_service.quick_gui(
+                "The media track information could not be retrieved.",
+                text_type="header",
+                box_align="left",
+            )
+            gs.aud_interface.clear_dni()
+            return
+        duration = song_data["duration"]
+        if duration is not None and int(duration) > int(
+            self.metadata[C_PLUGIN_SETTINGS][P_YT_MAX_VID_LEN]
+        ):
+            gs.gui_service.quick_gui(
+                f"The media track provided is longer than the maximum allowed video duration: [{str(timedelta(seconds=int(self.metadata[C_PLUGIN_SETTINGS][P_YT_MAX_VID_LEN])))}]",
+                text_type="header",
+                box_align="left",
+            )
+            gs.aud_interface.clear_dni()
+            return
+        gs.gui_service.quick_gui(
+            "Processing track...", text_type="header", box_align="left"
+        )
+        track_obj = TrackInfo(
+            uri=song_data["main_url"],
+            name=song_data["main_title"],
+            sender=sender,
+            duration=duration if duration is not None else -1,
+            track_type=TrackType.STREAM,
+            track_id=song_data["main_id"],
+            alt_uri=stripped_url,
+            image_uri=f"{dir_utils.get_temp_med_dir()}/{self.plugin_name}/{song_data['main_id']}",
+            quiet=False,
+            http_headers=song_data.get("http_headers"),
+        )
+        gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=to_front)
+        gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
+
     def cmd_link(self, data):
         if gs.aud_interface.check_dni(self.plugin_name):
             gs.aud_interface.set_dni(
@@ -278,60 +319,14 @@ class Plugin(PluginBase):
             )
             gs.aud_interface.clear_dni()
             return
-        sender = gs.mumble_inst.users[data.actor]["name"]
         stripped_url = BeautifulSoup(all_data[1], features="html.parser").get_text()
-        if (
-            "youtube.com" in stripped_url
-            or "youtu.be" in stripped_url
-            or "soundcloud" in stripped_url
-        ):
-            if ("youtube.com" in stripped_url and "list" in stripped_url) or (
-                "soundcloud" in stripped_url and "sets" in stripped_url
-            ):
-                gs.gui_service.quick_gui(
-                    "The given link was identified as a playlist link!<br>Please use the playlist "
-                    "command to add playlists to the queue!",
-                    text_type="header",
-                    box_align="left",
-                )
-                gs.aud_interface.clear_dni()
-                return
-
-            song_data = md_utility.get_video_info(stripped_url)
-            if song_data is None:
-                gs.gui_service.quick_gui(
-                    "The media track information could not be retrieved.",
-                    text_type="header",
-                    box_align="left",
-                )
-                gs.aud_interface.clear_dni()
-                return
-            if int(song_data["duration"]) > int(
-                self.metadata[C_PLUGIN_SETTINGS][P_YT_MAX_VID_LEN]
-            ):
-                gs.gui_service.quick_gui(
-                    f"The media track provided is longer than the maximum allowed video duration: [{str(timedelta(seconds=int(self.metadata[C_PLUGIN_SETTINGS][P_YT_MAX_VID_LEN])))}]",
-                    text_type="header",
-                    box_align="left",
-                )
-                gs.aud_interface.clear_dni()
-                return
+        if md_utility.is_playlist_url(stripped_url):
             gs.gui_service.quick_gui(
-                "Processing track...", text_type="header", box_align="left"
+                CMD_PLAYLIST_LINK, text_type="header", box_align="left"
             )
-            track_obj = TrackInfo(
-                uri=song_data["main_url"],
-                name=song_data["main_title"],
-                sender=sender,
-                duration=int(song_data["duration"]),
-                track_type=TrackType.STREAM,
-                track_id=song_data["main_id"],
-                alt_uri=stripped_url,
-                image_uri=f"{dir_utils.get_temp_med_dir()}/{self.plugin_name}/{song_data['main_id']}",
-                quiet=False,
-            )
-            gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
-            gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
+            gs.aud_interface.clear_dni()
+            return
+        self._enqueue_link_song(data, stripped_url, to_front=False)
 
     def cmd_linkfront(self, data):
         if gs.aud_interface.check_dni(self.plugin_name):
@@ -355,57 +350,14 @@ class Plugin(PluginBase):
             )
             gs.aud_interface.clear_dni()
             return
-        sender = gs.mumble_inst.users[data.actor]["name"]
         stripped_url = BeautifulSoup(all_data[1], features="html.parser").get_text()
-        if (
-            "youtube.com" in stripped_url
-            or "youtu.be" in stripped_url
-            or "soundcloud" in stripped_url
-        ):
-            if ("youtube.com" in stripped_url and "list" in stripped_url) or (
-                "soundcloud" in stripped_url and "sets" in stripped_url
-            ):
-                gs.gui_service.quick_gui(
-                    "The given link was identified as a playlist link!<br>Please use the playlist "
-                    "command to add playlists to the queue!",
-                    text_type="header",
-                    box_align="left",
-                )
-                gs.aud_interface.clear_dni()
-                return
-
-            song_data = md_utility.get_video_info(stripped_url)
-            if song_data is None:
-                gs.gui_service.quick_gui(
-                    "The media track information could not be retrieved.",
-                    text_type="header",
-                    box_align="left",
-                )
-                gs.aud_interface.clear_dni()
-                return
-            if int(song_data["duration"]) > int(
-                self.metadata[C_PLUGIN_SETTINGS][P_YT_MAX_VID_LEN]
-            ):
-                gs.gui_service.quick_gui(
-                    f"The media track provided is longer than the maximum allowed video duration: [{str(timedelta(seconds=int(self.metadata[C_PLUGIN_SETTINGS][P_YT_MAX_VID_LEN])))}]",
-                    text_type="header",
-                    box_align="left",
-                )
-                gs.aud_interface.clear_dni()
-                return
-            track_obj = TrackInfo(
-                uri=song_data["main_url"],
-                name=song_data["main_title"],
-                sender=sender,
-                duration=int(song_data["duration"]),
-                track_type=TrackType.STREAM,
-                track_id=song_data["main_id"],
-                alt_uri=stripped_url,
-                image_uri=f"{dir_utils.get_temp_med_dir()}/{self.plugin_name}/{song_data['main_id']}",
-                quiet=False,
+        if md_utility.is_playlist_url(stripped_url):
+            gs.gui_service.quick_gui(
+                CMD_PLAYLIST_LINK, text_type="header", box_align="left"
             )
-            gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=True)
-            gs.aud_interface.play(audio_lib=AudioLibrary.FFMPEG)
+            gs.aud_interface.clear_dni()
+            return
+        self._enqueue_link_song(data, stripped_url, to_front=True)
 
     def cmd_ytsearch(self, data):
         all_data = data.message.strip().split(" ", 1)
@@ -477,6 +429,7 @@ class Plugin(PluginBase):
                     alt_uri=md_settings.search_results[0]["webpage_url"],
                     image_uri=f"{dir_utils.get_temp_med_dir()}/{self.plugin_name}/{song_data['main_id']}",
                     quiet=False,
+                    http_headers=song_data.get("http_headers"),
                 )
                 gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
                 md_settings.search_results = None
@@ -524,6 +477,7 @@ class Plugin(PluginBase):
                     alt_uri=md_settings.search_results[int(all_data[1])]["webpage_url"],
                     image_uri=f"{dir_utils.get_temp_med_dir()}/{self.plugin_name}/{song_data['main_id']}",
                     quiet=False,
+                    http_headers=song_data.get("http_headers"),
                 )
                 gs.aud_interface.enqueue_track(track_obj=track_obj, to_front=False)
                 md_settings.search_results = None

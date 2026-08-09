@@ -5,12 +5,20 @@ from JJMumbleBot.lib.utils.print_utils import PrintMode
 from JJMumbleBot.plugins.extensions.media.resources.strings import *
 from JJMumbleBot.settings import global_settings as gs
 from JJMumbleBot.lib.utils import dir_utils
+from JJMumbleBot.lib.utils.runtime_utils import parse_remote_components
 from JJMumbleBot.lib.audio.audio_api import TrackType, TrackInfo
 from JJMumbleBot.lib.utils.logging_utils import log
 from JJMumbleBot.settings import runtime_settings
 from JJMumbleBot.plugins.extensions.media.utility import settings
 import os
 from zlib import crc32
+
+
+def add_remote_components(ydl_opts):
+    if remote_components := parse_remote_components(
+        gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_REMOTE_COMPONENTS]
+    ):
+        ydl_opts["remote_components"] = remote_components
 
 
 def on_next_track():
@@ -33,6 +41,7 @@ def on_next_track():
                 alt_uri=cur_track.alt_uri,
                 image_uri=cur_track.image_uri,
                 quiet=False,
+                http_headers=song_data.get("http_headers"),
             )
             gs.aud_interface.status.set_track(track_obj)
             return
@@ -58,6 +67,7 @@ def on_next_track():
                 alt_uri=gs.aud_interface.status.get_queue()[0].alt_uri,
                 image_uri=gs.aud_interface.status.get_queue()[0].image_uri,
                 quiet=False,
+                http_headers=song_data.get("http_headers"),
             )
             gs.aud_interface.status.set_track(track_obj)
             cur_track_hashed_img_uri = hex(
@@ -85,6 +95,7 @@ def song_integrity_check():
             alt_uri=cur_track.alt_uri,
             image_uri=cur_track.image_uri,
             quiet=False,
+            http_headers=song_data.get("http_headers"),
         )
         gs.aud_interface.status.set_track(track_obj)
         cur_track_hashed_img_uri = hex(
@@ -115,6 +126,7 @@ def on_play():
                 alt_uri=cur_track.alt_uri,
                 image_uri=cur_track.image_uri,
                 quiet=False,
+                http_headers=song_data.get("http_headers"),
             )
             gs.aud_interface.status.set_track(track_obj)
             cur_track_hashed_img_uri = hex(
@@ -169,6 +181,7 @@ def download_thumbnail(cur_track):
         if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
             ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
 
+        add_remote_components(ydl_opts)
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.cache.remove()
             ydl.extract_info(cur_track.alt_uri, download=True)
@@ -249,6 +262,7 @@ def get_video_info(video_url):
         if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
             ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
 
+        add_remote_components(ydl_opts)
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.cache.remove()
             info_dict = ydl.extract_info(video_url, download=False)
@@ -259,6 +273,7 @@ def get_video_info(video_url):
                 "main_title": info_dict["title"],
                 "main_id": info_dict["id"],
                 "duration": info_dict["duration"],
+                "http_headers": info_dict.get("http_headers"),
             }
             return prep_struct
     except yt_dlp.utils.DownloadError as e:
@@ -269,6 +284,50 @@ def get_video_info(video_url):
             print_mode=PrintMode.VERBOSE_PRINT.value,
         )
         return None
+
+
+def is_playlist_url(playlist_url):
+    ydl_opts = {
+        "quiet": True,
+        "format": "bestaudio/best",
+        "noplaylist": False,
+        "extract_flat": True,
+        "skip_download": True,
+        "ignoreerrors": True,
+        "proxy": gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PROXY_URL],
+        "extractor_args": {"youtube": {}},
+    }
+    if runtime_settings.use_logging:
+        ydl_opts["logger"] = gs.log_service
+    if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]) > 0:
+        ydl_opts["cookiefile"] = gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_COOKIE_FILE]
+
+    if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL]) > 0:
+        ydl_opts["extractor_args"]["youtube"]["getpot_bgutil_baseurl"] = [
+            gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL]
+        ]
+
+    if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
+        ydl_opts["extractor_args"]["youtube"]["player_client"] = [
+            gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]
+        ]
+
+    add_remote_components(ydl_opts)
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.cache.remove()
+            info_dict = ydl.extract_info(playlist_url, download=False, process=False)
+            return info_dict is not None and (
+                info_dict.get("_type") == "playlist" or "entries" in info_dict
+            )
+    except yt_dlp.utils.DownloadError as e:
+        log(
+            ERROR,
+            f"Encountered a youtube_dl download error while checking if {playlist_url} is a playlist.\n{e}",
+            origin=L_GENERAL,
+            print_mode=PrintMode.VERBOSE_PRINT.value,
+        )
+        return False
 
 
 def get_playlist_info(playlist_url):
@@ -292,8 +351,11 @@ def get_playlist_info(playlist_url):
         ydl_opts["extractor_args"]["youtube"]["getpot_bgutil_baseurl"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_POT_URL] ]
 
     if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
-        ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
+        ydl_opts["extractor_args"]["youtube"]["player_client"] = [
+            gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]
+        ]
 
+    add_remote_components(ydl_opts)
     if settings.youtube_metadata.getboolean(
         C_PLUGIN_SETTINGS, P_YT_ALL_PLAY_MAX, fallback=True
     ):
@@ -322,6 +384,7 @@ def get_playlist_info(playlist_url):
         if len(gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND]) > 0:
             ydl_opts["extractor_args"]["youtube"]["player_client"] = [ gs.cfg[C_MEDIA_SETTINGS][P_MEDIA_PLAYER_BACKEND] ]
 
+        add_remote_components(ydl_opts)
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         playlist_dict_check = ydl.extract_info(
             playlist_url, download=False, process=False
@@ -414,6 +477,7 @@ def get_playlist_info(playlist_url):
 
 def get_search_results(search_term, results_length):
     ydl_opts = {"quiet": True, "format": "bestaudio/best", "noplaylist": True}
+    add_remote_components(ydl_opts)
     search_results_list = []
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         search_results_list = list(

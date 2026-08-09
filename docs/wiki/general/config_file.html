@@ -62,6 +62,7 @@
         <li><code>MaxQueueLength</code>: The default maximum queue length for the audio interface (default=50)</li>
         <li><code>YoutubeDLProxyURL</code>: Optional Proxy URL - If you want to use a proxy server to use the youtube-dl library, fill this out</li>
         <li><code>YoutubeDLCookieFile</code>: Optionally use a cookies.txt file for the youtube-dl library (useful to deal with rate limits).</li>
+        <li><code>YoutubeDLRemoteComponents</code>: Comma/space separated list of yt-dlp remote components to allow fetching when required. Supported values: <code>ejs:npm</code>, <code>ejs:github</code>.</li>
         <li><code>TemporaryMediaDirectory</code>: Temporary images directory to store youtube thumbnails and other images content. This directory is cleared when the bot exits.</li>
         <li><code>PermanentMediaDirectory</code>: Permanent media directory to store sound board clips, and other media that won&#39;t be deleted when the bot exits.</li>
         </ul>
@@ -78,6 +79,7 @@
             MaxQueueLength = 50
             YoutubeDLProxyURL =
             YoutubeDLCookieFile =
+            YoutubeDLRemoteComponents =
             TemporaryMediaDirectory = TEMP_MEDIA_DIR_PATH
             PermanentMediaDirectory = PERM_MEDIA_DIR_PATH
         </pre>

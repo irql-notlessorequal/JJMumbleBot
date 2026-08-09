@@ -71,7 +71,7 @@ class TestConfigTemplate:
 
     def test_media_duck_volume(self):
         media_duck_volume = self.cfg[C_MEDIA_SETTINGS][P_MEDIA_DUCK_VOLUME]
-        assert media_duck_volume == "0.05"
+        assert media_duck_volume == "0.02"
 
     def test_media_duck_threshold(self):
         media_duck_threshold = self.cfg[C_MEDIA_SETTINGS][P_MEDIA_DUCK_THRESHOLD]
