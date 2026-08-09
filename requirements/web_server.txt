@@ -3,6 +3,8 @@ uvicorn
 fastapi
 fastapi-utils
 pydantic
+# required by fastapi-utils.cbv under pydantic 2
+typing-inspect>=0.9.0
 websockets
 aiofiles
 jinja2
